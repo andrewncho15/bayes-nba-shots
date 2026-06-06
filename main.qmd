@@ -16,52 +16,37 @@ execute:
 
 # Research question
 
-In basketball, a shot attempt is not equally difficult for every player or every situation. A layup, a short midrange jumper, and a three-point attempt have very different expected outcomes. At the same time, players differ in their individual shooting ability, and players with only a small number of attempts are difficult to evaluate from raw field goal percentage alone.
+Across all levels of basketball, shot attempts are not equally difficult for every player or every situation.  For example, layups, mid-range shots, and threes all have different expected outcomes.  Also, players differ in shooting ability, and players with small number of attempts are not effectively evaluated from raw field goal percentage alone.
 
 Our research question is:
 
-> How do shot context and player-specific ability affect the probability that an NBA player makes a field goal attempt?
+> How does shot context and player-specific shooting ability affect the probability that an NBA player makes a field goal attempt?
 
-We analyze shot-level NBA data using a Bayesian hierarchical logistic regression model. The response variable is whether a shot was made. The main predictors are shot distance, shot type, a derived shot zone, period, time remaining in the period, score margin, home/away status, and player identity. The hierarchical part of the model allows each player to have their own shooting ability parameter while partially pooling players toward the league average. This is useful because players with fewer attempts should not be treated as if their observed field goal percentage is as reliable as that of high-volume shooters.
-
-The main goals are:
-
-1. Estimate how shot context changes the probability of making a shot.
-2. Estimate player-specific shooting ability after adjusting for shot difficulty.
-3. Demonstrate Bayesian partial pooling.
-4. Compare the Bayesian model to a comparable frequentist logistic regression.
-5. Evaluate model fit using posterior prediction, posterior predictive checking, prior sensitivity, and model comparison.
+To address this question, we are going to analyze shot-level NBA data using Bayesian hierarchical logistic regression model.  The response variable is binary whether the field goal was made or missed.  We will use shot distance, shot type, shot zone, period, time remaining in the period, score margin, home/away status, and player profile to predict the probability of the field goal being made.  Using the hierarchical model, we hallow each player to have their own shooting ability parameter while shrinking players towards league average.  This is very important in our context since it allows players with fewer shot attempts to be treated on the same level as players with high volume which fixes the unreliability issue with raw field goal percentage.
 
 # Statistical background
 
-For each shot attempt \(i = 1, \ldots, n\), define
+For each shot attempt (i = 1, \ldots, n), we define
 
-$$
-Y_i =
+$$Y_i =
 \begin{cases}
 1, & \text{if shot } i \text{ was made} \\
 0, & \text{if shot } i \text{ was missed.}
-\end{cases}
-$$
+\end{cases}$$
 
-We model
+Now we model
 
-$$
-Y_i \mid p_i \sim \text{Bernoulli}(p_i),
-$$
+$$Y_i \mid p_i \sim \text{Bernoulli}(p_i),$$
 
-where \(p_i\) is the probability that shot \(i\) is made.
+where (p_i) is the probability that the i'th shot is made.
 
-Because \(p_i\) must lie between 0 and 1, we use a logistic regression model:
+Because (p_i) must lie between 0 and 1, we chose a logistic regression model:
 
-$$
-\text{logit}(p_i) = \log\left(\frac{p_i}{1-p_i}\right) = \eta_i.
-$$
+$$\text{logit}(p_i) = \log\left(\frac{p_i}{1-p_i}\right) = \eta_i.$$
 
 A non-hierarchical model would use
 
-$$
-\eta_i =
+$$\eta_i =
 \alpha
 +
 \beta_1 \,\text{distance}_{z,i}
@@ -76,13 +61,11 @@ $$
 +
 \beta_6 \,\text{clock}_{z,i}
 +
-\beta_7 \,\text{margin}_{z,i}.
-$$
+\beta_7 \,\text{margin}_{z,i}.$$
 
 However, this ignores player-to-player variation. We instead use a hierarchical model:
 
-$$
-\eta_i =
+$$\eta_i =
 \alpha
 +
 u_{\text{player}[i]}
@@ -99,41 +82,35 @@ u_{\text{player}[i]}
 +
 \beta_6 \,\text{clock}_{z,i}
 +
-\beta_7 \,\text{margin}_{z,i}.
-$$
+\beta_7 \,\text{margin}_{z,i}.$$
 
-The player effects are modeled as
+And model the player effects as
 
-$$
-u_j \sim \text{Normal}(0, \sigma_{\text{player}}),
-$$
+$$u_j \sim \text{Normal}(0, \sigma_{\text{player}}),$$
 
-where \(u_j\) is the adjusted shooting ability of player \(j\), and \(\sigma_{\text{player}}\) describes how much true shooting ability varies across players after controlling for shot context.
+where (u_j) is the adjusted shooting ability of player (j), and (\sigma\_{\text{player}}) describes how much true shooting ability varies across players after controlling for shot context.
 
-This model is Bayesian because we specify priors for all unknown parameters and use posterior inference:
+Our Bayesian model specifies priors for all unknown parameters and we will use posterior inference:
 
-$$
-p(\theta \mid y) \propto p(y \mid \theta)p(\theta),
-$$
+$$p(\theta \mid y) \propto p(y \mid \theta)p(\theta),$$
 
-where \(p(y \mid \theta)\) is the likelihood and \(p(\theta)\) is the prior distribution.
+where (p(y \mid \theta)) is the likelihood and (p(\theta)) is the prior distribution.
 
-# Why this is an appropriate Bayesian project
+# Bayesian Methodologies
 
-This project goes beyond a standard logistic regression because it uses a hierarchical Bayesian model. The Bayesian framework is especially useful here for three reasons.
+This project goes beyond a standard logistic regression because it leverages a hierarchical Bayesian model. The Bayesian framework is especially useful here for three reasons:
 
-First, the model estimates uncertainty directly using posterior distributions, not just point estimates and standard errors.
+First, the model can estimate uncertainty using posterior distributions not just through joint estiamtes and standard errors.
 
-Second, partial pooling helps stabilize player estimates. A player who makes 6 out of 10 shots should not necessarily be estimated as a better shooter than a player who makes 420 out of 900 shots. The hierarchical prior shrinks low-information players toward the league average.
+Second, using partial pooling, we can stabilize player estimates meaning that for a player who makes 6 out of 10 shots we should not necessarily say that they are a better shooter than a player who makes 420 out of 900 shots.  The hierarchical prior shrinks low sample players towards league average.
 
-Third, Bayesian posterior prediction allows us to answer practical questions such as:
+Third, Bayesian posterior prediction increases interpretability and allows us to answer questions like:
 
-- What is the predicted probability that a specific player makes a three-point attempt?
-- How much does shot distance reduce make probability?
-- Which players appear to outperform expected shot difficulty?
-- Does the model reproduce realistic made-shot rates by zone or player?
+- How much does increasing shot distance reduce the probability of a make?
+- What is the predicted probability that a certain player makes a three?
+- Which players are overperforming their expected make expectation?
 
-# Packages
+# Import Packages
 
 ```{r}
 library(tidyverse)
@@ -158,15 +135,13 @@ set.seed(415)
 
 # Data source
 
-We use NBA play-by-play data accessed through the `hoopR` package. The function `load_nba_pbp()` provides play-level data from ESPN, including shot outcomes, shot coordinates, period, clock, score, and player IDs. We also use `load_nba_player_box()` to recover player display names from player IDs when that lookup is available.
+We are using play-by-play data acquired through the hoopR package.  We will use load_nba_pbp() and load_nba_player_box() to obtain the play-by-play data and recover player display names from player ID's when available.
 
-This project proposal originally described using Basketball Reference, but the `hoopR` play-by-play data is a better match for a hierarchical shot-level model because it provides consistent shot-level coordinates and game context.
+Our project proposal leverages play-by-play data which is better suited for a hierarchical model since it provides us with consistent shot-level coordinates on the floor and game context.
 
 # Data collection
 
-The code below pulls NBA play-by-play data and filters it down to field goal attempts. The ESPN play-by-play file in `hoopR` does not contain a stable `athlete_display_name_1` column, so player names are joined separately using `load_nba_player_box()`. If that lookup fails, the code falls back to labels based on player ID.
-
-The play-by-play file also does not contain a direct `shot_distance` column in your session, so we derive an approximate shot distance from the play text when possible, and otherwise use shot coordinates as a fallback.
+The following code pulls the play-by-play data and filters it down to field goal attempts.  Then, we performed a join since the athlete_display_name columns were not complete.  The data also does not contain a shot_distance column so we created an approximate shot distance formula from the play text where posible and used the integrated shot coordinates as a fall-back.
 
 ```{r}
 season_used <- 2024
@@ -274,9 +249,9 @@ shots_raw <- pbp_raw |>
 glimpse(shots_raw)
 ```
 
-# Restricting the data set
+# Filtering
 
-To keep the project computationally reasonable and statistically interpretable, we restrict to players with at least a moderate number of attempts and then sample a few thousand shots. This still leaves enough data for a meaningful hierarchical model while avoiding a huge data set where posterior intervals become extremely small.
+To target our primary interest and keep statistical interpretability intact, we next filter down the data to players with at least a "moderate" number of shot attempts and then sample thousands of shots.  This leaves us data for a meaningful model but avoids keeping a huge data set where the posterior intervals are going to be too tight.
 
 ```{r}
 player_counts <- shots_raw |>
@@ -316,7 +291,7 @@ shots_model <- shots_filtered |>
 glimpse(shots_model)
 ```
 
-# Exploratory data analysis
+# Data Analysis
 
 ## Overall make percentage
 
@@ -392,22 +367,19 @@ player_raw |>
   gt()
 ```
 
-# Bayesian model
+# Bayesian Model
 
 ## Likelihood
 
-For shot \(i\),
+For shot (i),
 
-$$
-Y_i \sim \text{Bernoulli}(p_i).
-$$
+$$Y_i \sim \text{Bernoulli}(p_i).$$
 
 ## Linear predictor
 
 Our main model is
 
-$$
-\text{logit}(p_i)
+$$\text{logit}(p_i)
 =
 \alpha
 +
@@ -423,44 +395,35 @@ u_{\text{player}[i]}
 +
 \beta_5 \,\text{clock}_{z,i}
 +
-\beta_6 \,\text{margin}_{z,i}.
-$$
+\beta_6 \,\text{margin}_{z,i}.$$
 
 The player random effect is
 
-$$
-u_j \sim \text{Normal}(0, \sigma_{\text{player}}).
-$$
+$$u_j \sim \text{Normal}(0, \sigma_{\text{player}}).$$
 
-The interpretation of \(u_j\) is the player's adjusted shooting ability after controlling for shot distance, shot type, period, time remaining, score margin, and home/away status.
+We interpret (u_j) as the player adjusted shooting ability after controlling for shot distance, type, period, time remaining, score margin, and home/away.
 
 ## Priors
 
-We use weakly informative priors.
+We chose uninformative priors.
 
-The intercept receives
+Our intercept gets:
 
-$$
-\alpha \sim \text{Normal}(0, 1.5).
-$$
+$$\alpha \sim \text{Normal}(0, 1.5).$$
 
-On the probability scale, this prior allows a wide range of baseline shooting probabilities. Since NBA field goal percentages are often around 40% to 50%, this is weak but still reasonable.
+This prior allows for a wide range of shooting probability priors and since NBA field goal percentages are often 40%-50%, our prior is uninformative but reasonable.
 
-Regression coefficients receive
+Regression coefficients get:
 
-$$
-\beta_k \sim \text{Normal}(0, 1).
-$$
+$$\beta_k \sim \text{Normal}(0, 1).$$
 
-A coefficient of 1 on the log-odds scale corresponds to an odds ratio of \(e^1 \approx 2.72\), so this prior allows substantial effects while discouraging implausibly extreme ones.
+This prior allows for substantial effects while discouraging implausibly extreme effects.  
 
-The player standard deviation receives
+The player standard deviation gets
 
-$$
-\sigma_{\text{player}} \sim \text{Exponential}(1).
-$$
+$$\sigma_{\text{player}} \sim \text{Exponential}(1).$$
 
-This prior favors smaller between-player variation but still permits substantial heterogeneity if supported by the data.
+Our prior favors small player-to-player variation but would still allow heterogeneity if the data suggests it.
 
 ```{r}
 model_formula <- bf(
@@ -489,7 +452,7 @@ priors_main
 
 # Prior predictive checking
 
-Before fitting the model to the observed outcomes, we check whether the priors imply reasonable shot-making rates.
+We will now check whether our priors are reasonable in implying shot-making rates.
 
 ```{r}
 fit_prior <- brm(
@@ -510,7 +473,7 @@ pp_check(fit_prior, ndraws = 100) +
   labs(title = "Prior predictive check")
 ```
 
-# Fit the main Bayesian hierarchical logistic model
+# Fitting our Bayesian hierarchical logistic model
 
 ```{r}
 fit_bayes <- brm(
@@ -533,7 +496,7 @@ summary(fit_bayes)
 
 # MCMC diagnostics
 
-We check standard MCMC diagnostics, including trace plots, \(\hat{R}\), and effective sample size.
+Now, we are going to check MCMC diagnostic plots.
 
 ```{r}
 plot(fit_bayes)
@@ -580,10 +543,9 @@ diag_summary <- diag_summary |>
 diag_summary |>
   slice_head(n = 20) |>
   gt()
-
 ```
 
-A well-fit model should have \(\hat{R}\) values close to 1.00 and no obvious trace plot pathologies. If there are divergent transitions, we would increase `adapt_delta`, simplify the model, or reconsider the parameterization.
+A well-fitting model have (\hat{R}) value close to 1.00.
 
 # Posterior inference for fixed effects
 
@@ -594,9 +556,9 @@ fixef(fit_bayes) |>
   gt()
 ```
 
-The distance coefficient is expected to be negative because longer shots are generally harder. The home effect, period effects, and game-state effects may be smaller after adjusting for shot distance and player ability.
+Our expectation is the distance coefficient should be negative since longer range shots should have lower make probabilities.  The home/away effect, period effect, and game-state effects should be smaller after adjusting for shot distance and player ability.
 
-To interpret coefficients as odds ratios:
+Interpretation as odds ratios
 
 ```{r}
 posterior_fixed <- fixef(fit_bayes) |>
@@ -613,9 +575,9 @@ posterior_fixed |>
   gt()
 ```
 
-# Player-specific posterior estimates
+# Player specific posterior estimates
 
-The player effects estimate shooting ability after adjusting for shot context. These are not raw field goal percentages. They are adjusted player effects on the log-odds scale.
+The player effects estimate shooting ability after adjusting for the shot's context.  This is different from raw field goal percent since they are adjusted player effects on the log-odds scale.
 
 ```{r}
 player_effects <- ranef(fit_bayes)$player_name[, , "Intercept"] |>
@@ -647,9 +609,9 @@ player_effects |>
   )
 ```
 
-# Demonstrating partial pooling
+# Partial pooling
 
-To show partial pooling, we compare raw field goal percentage with the Bayesian adjusted player effect. Players with fewer shots should generally be pulled more strongly toward the league average.
+We will now compare raw field goal percentage with the Bayesian adjusted player effect.  Since players that have fewer shot attempts have higher variability, we expect them to be pulled more strongly towards the league average level.
 
 ```{r}
 partial_pooling_df <- player_raw |>
@@ -668,7 +630,7 @@ ggplot(partial_pooling_df, aes(x = raw_fg_pct, y = player_effect, size = attempt
 
 # Posterior prediction
 
-We now use the model to predict shot-making probabilities for specific hypothetical shot contexts.
+Now, we will use the model to predict shot make probabilities for specific shot contexts
 
 ```{r}
 example_players <- player_effects |>
@@ -713,18 +675,157 @@ bind_cols(new_shots, as.data.frame(preds)) |>
   gt()
 ```
 
-These predictions are posterior summaries of the probability of making a shot, accounting for uncertainty in both the fixed effects and player effects.
+These predictions are the posterior summaries for the probability of making a shot accounting for uncertainty in the fixed effects and player effects
+
+## Prediction intervals
+
+The posterior predictive distribution is Binary, thus, single shot prediction intervals will be wide and discrete even when the predicted make probability is estiamted precisely.  
+
+```{r}
+set.seed(415)
+
+
+y_pred_single <- posterior_predict(
+  fit_bayes,
+  newdata = new_shots,
+  re_formula = NULL,
+  ndraws = 4000
+)
+
+single_shot_prediction_intervals <- map_dfr(seq_len(ncol(y_pred_single)), function(j) {
+  tibble(
+    row_id = j,
+    predicted_make_rate = mean(y_pred_single[, j]),
+    pred_50_lower = quantile(y_pred_single[, j], 0.25),
+    pred_50_upper = quantile(y_pred_single[, j], 0.75),
+    pred_80_lower = quantile(y_pred_single[, j], 0.10),
+    pred_80_upper = quantile(y_pred_single[, j], 0.90),
+    pred_98_lower = quantile(y_pred_single[, j], 0.01),
+    pred_98_upper = quantile(y_pred_single[, j], 0.99)
+  )
+})
+
+new_shots |>
+  mutate(row_id = row_number()) |>
+  left_join(single_shot_prediction_intervals, by = "row_id") |>
+  select(
+    player_name,
+    shot_distance,
+    shot_type_simple,
+    predicted_make_rate,
+    pred_50_lower,
+    pred_50_upper,
+    pred_80_lower,
+    pred_80_upper,
+    pred_98_lower,
+    pred_98_upper
+  ) |>
+  gt() |>
+  tab_header(
+    title = "Posterior prediction intervals for one future shot",
+    subtitle = "Binary posterior predictive outcomes: 0 = miss, 1 = make"
+  ) |>
+  cols_label(
+    predicted_make_rate = "Predicted Pr(make)",
+    pred_50_lower = "50% lower",
+    pred_50_upper = "50% upper",
+    pred_80_lower = "80% lower",
+    pred_80_upper = "80% upper",
+    pred_98_lower = "98% lower",
+    pred_98_upper = "98% upper"
+  ) |>
+  fmt_percent(columns = predicted_make_rate, decimals = 1)
+```
+
+For a single future shot, our prediction intervals serve to answer the question: What outcomes should be expected for one future attempt in this particular context?  Since the observed outcome is binary, these intervals often include 0 and 1, and while that would usually suggest that the model is uninformative, in our context is reflects that even high-probability shots can be missed and low-probability shots can be made.
+
+Now, to make our prediction intervals more interpretable, we simulated the number of made shots out of 100 simulated attempts taken undert the same context to keep the model's uncertainty but show the prediction as a "shots made out of 100" context.
+
+```{r}
+set.seed(415)
+
+
+epred_draws <- posterior_epred(
+  fit_bayes,
+  newdata = new_shots,
+  re_formula = NULL,
+  ndraws = 4000
+)
+
+made_per_100_draws <- apply(
+  epred_draws,
+  2,
+  function(p_draws) rbinom(length(p_draws), size = 100, prob = p_draws)
+)
+
+made_per_100_intervals <- map_dfr(seq_len(ncol(made_per_100_draws)), function(j) {
+  tibble(
+    row_id = j,
+    predicted_makes_per_100 = mean(made_per_100_draws[, j]),
+    pred_50_lower = quantile(made_per_100_draws[, j], 0.25),
+    pred_50_upper = quantile(made_per_100_draws[, j], 0.75),
+    pred_80_lower = quantile(made_per_100_draws[, j], 0.10),
+    pred_80_upper = quantile(made_per_100_draws[, j], 0.90),
+    pred_98_lower = quantile(made_per_100_draws[, j], 0.01),
+    pred_98_upper = quantile(made_per_100_draws[, j], 0.99)
+  )
+})
+
+new_shots |>
+  mutate(row_id = row_number()) |>
+  left_join(made_per_100_intervals, by = "row_id") |>
+  select(
+    player_name,
+    shot_distance,
+    shot_type_simple,
+    predicted_makes_per_100,
+    pred_50_lower,
+    pred_50_upper,
+    pred_80_lower,
+    pred_80_upper,
+    pred_98_lower,
+    pred_98_upper
+  ) |>
+  gt() |>
+  tab_header(
+    title = "Posterior prediction intervals for makes out of 100 similar shots",
+    subtitle = "50%, 80%, and 98% prediction intervals"
+  ) |>
+  cols_label(
+    predicted_makes_per_100 = "Predicted makes per 100",
+    pred_50_lower = "50% lower",
+    pred_50_upper = "50% upper",
+    pred_80_lower = "80% lower",
+    pred_80_upper = "80% upper",
+    pred_98_lower = "98% lower",
+    pred_98_upper = "98% upper"
+  ) |>
+  fmt_number(
+    columns = c(
+      predicted_makes_per_100,
+      pred_50_lower,
+      pred_50_upper,
+      pred_80_lower,
+      pred_80_upper,
+      pred_98_lower,
+      pred_98_upper
+    ),
+    decimals = 1
+  )
+```
+
+These intervals that we derived tie back to our original research question.  Our model estimates how shot context and player-specific ability affect make probability and our prediction intervals translate those estimated probabilities into predictions on future results under similar contexts.  Shorter shots should have higher make probabilities than longer shots,  and player with larger positive random effects should have higher prediction intervals than comparable players taking the same shots
 
 # Posterior predictive checking
 
-Posterior predictive checking compares simulated data from the fitted model to the observed data.
+Now we will use posterior predictive checking to compare simulated data from the model to the observed data.
 
 ```{r}
 pp_check(fit_bayes, ndraws = 100) +
   labs(title = "Posterior predictive check: overall distribution")
 ```
 
-Because the response is binary, we also check whether the model reproduces group-level summaries such as make percentage by shot zone.
+Since we have a binary response, we are going to check if the model recreates the group-level summaries like make-percentage by shot zone.
 
 ```{r}
 yrep <- posterior_predict(fit_bayes, ndraws = 200)
@@ -763,11 +864,11 @@ ggplot(zone_ppc, aes(x = sim_median, y = fct_reorder(shot_zone_basic, sim_median
   )
 ```
 
-A good model should generate replicated zone-level field goal percentages that are close to the observed values. Large discrepancies suggest missing structure, such as omitted predictors or interactions.
+We don't see large discrepancies in the model so we accept our model under this context.
 
-# Model comparison
+# Model comparisons
 
-We compare the hierarchical model to a simpler non-hierarchical Bayesian logistic regression.
+We compare the hierarchical model to a non-hierarchical Bayesian logistic regression.
 
 ```{r}
 fit_no_player <- brm(
@@ -791,51 +892,11 @@ loo_no_player <- loo(fit_no_player)
 loo_compare(loo_bayes, loo_no_player)
 ```
 
-If the hierarchical model has better expected log predictive density, this supports the claim that player-level variation improves out-of-sample predictive performance.
-
-# Optional richer model: player-specific distance effects
-
-A more flexible hierarchical model allows the effect of distance to differ by player:
-
-$$
-\text{logit}(p_i)
-=
-\alpha
-+
-u_{\text{player}[i]}
-+
-(\beta_1 + v_{\text{player}[i]})\text{distance}_{z,i}
-+
-\cdots.
-$$
-
-This lets players vary not only in baseline shooting ability but also in how strongly distance affects their make probability.
-
-```{r eval=FALSE}
-fit_bayes_slope <- brm(
-  made ~ distance_z + shot_type_simple + is_home + period +
-    clock_seconds_z + score_margin_z + (1 + distance_z | player_name),
-  data = shots_model,
-  family = bernoulli(link = "logit"),
-  prior = priors_main,
-  sample_prior = "yes",
-  chains = 4,
-  iter = 4000,
-  warmup = 1500,
-  seed = 415,
-  control = list(adapt_delta = 0.99, max_treedepth = 15)
-)
-
-loo_compare(loo(fit_bayes), loo(fit_bayes_slope))
-```
-
-We treat this as optional because it is computationally heavier and may require more data per player.
+We favor the fit_bayes model since it has a 2.3 advantage over fit_no_player.
 
 # Prior sensitivity analysis
 
-A stronger Bayesian analysis should investigate whether conclusions depend strongly on the prior.
-
-We compare the main weakly informative prior to a tighter prior and a wider prior.
+Strong Bayesian analysis should show to what degree conclusions degree on the prior, so we compared our uninformative prior to a tigher prior and a wider prior.
 
 ```{r}
 priors_tighter <- c(
@@ -889,11 +950,9 @@ sensitivity_fixed |>
   gt()
 ```
 
-If the major conclusions, especially the signs and approximate magnitudes of the most important effects, are stable across these priors, then the analysis is not overly prior-driven.
+# Frequentist methods comparison
 
-# Frequentist comparison
-
-For comparison, we fit a frequentist logistic mixed-effects model using `glmer()`.
+Now, we will fit a logistic mixed-effects model and compare to our Bayesian analysis.
 
 ```{r}
 fit_freq <- glmer(
@@ -930,35 +989,19 @@ comparison |>
   gt()
 ```
 
-The frequentist model estimates similar log-odds coefficients, but the Bayesian model provides full posterior distributions and allows more direct probability statements. The Bayesian model also makes it natural to perform prior predictive checks and prior sensitivity analysis.
+The frequentist logistic model estiamtes similar coeffiients, but our Bayesian model provides complete posterior distributions that allow for more interpretable probability statements.  Also, the Bayesian method creates more natural workflows to perform prior predictive checks and prior sensitivity analysis.
 
-# Main results
+# Results
 
 The final results should be filled in after running the code. The main findings should discuss the following:
 
-1. **Shot distance:** Longer shots should generally have a lower posterior probability of being made.
-2. **Shot type:** Three-point attempts should generally be harder than two-point attempts after controlling for player differences.
-3. **Game context:** Home/away effects, score margin, and time remaining in the period may be smaller after adjusting for shot difficulty and player ability.
-4. **Player effects:** Some players have positive adjusted shooting effects, meaning they make shots at a higher rate than expected given shot context.
-5. **Partial pooling:** Low-attempt players are pulled closer to the league average than high-attempt players.
-6. **Model fit:** Posterior predictive checks should show whether the model captures overall and zone-level shot-making rates.
-7. **Prior sensitivity:** If results are similar under tighter and wider priors, conclusions are more robust.
-
-# Discussion
-
-This project demonstrates the value of Bayesian hierarchical modeling in basketball analytics. A raw field goal percentage ignores the difficulty of the shots a player takes. A player who attempts many difficult shots may appear inefficient using raw percentage alone, while another player who mostly attempts easier shots may appear more efficient than their true shot-making ability suggests.
-
-Our hierarchical logistic regression adjusts for several components of shot difficulty while estimating player-specific ability. The hierarchical structure is important because it partially pools player estimates. Players with fewer attempts are shrunk toward the league average, while players with many attempts are estimated more independently from the data.
-
-The model also gives posterior predictive distributions, allowing us to quantify uncertainty in predicted shot probabilities. This is more informative than simply reporting a fitted probability from a non-Bayesian model.
-
-There are limitations. The available play-by-play data does not fully capture defender distance, contest level, pass quality, whether the shot was self-created, or a true shot-clock variable. In addition, our shot distance variable is partly derived from play text and coordinates rather than from official optical tracking data. These limitations may bias player effects if certain players consistently take more difficult shots that are not fully measured by the available variables.
-
-# Conclusion
-
-We used a Bayesian hierarchical logistic regression model to estimate the probability that an NBA shot is made. The model included shot context predictors and player-specific random effects. The Bayesian approach allowed us to quantify uncertainty, perform prior predictive checking, estimate partial pooling, generate posterior predictions, compare models, and examine sensitivity to prior assumptions.
-
-The most important statistical contribution of the project is that it separates raw shot-making from adjusted shot-making. Rather than ranking players only by observed field goal percentage, the model estimates how much each player outperforms or underperforms expected shot probability after adjusting for shot context.
+1.  **Shot distance:** Longer shots should generally have a lower posterior probability of being made.
+2.  **Shot type:** Three-point attempts should generally be harder than two-point attempts after controlling for player differences.
+3.  **Game context:** Home/away effects, score margin, and time remaining in the period may be smaller after adjusting for shot difficulty and player ability.
+4.  **Player effects:** Some players have positive adjusted shooting effects, meaning they make shots at a higher rate than expected given shot context.
+5.  **Partial pooling:** Low-attempt players are pulled closer to the league average than high-attempt players.
+6.  **Model fit:** Posterior predictive checks should show whether the model captures overall and zone-level shot-making rates.
+7.  **Prior sensitivity:** If results are similar under tighter and wider priors, conclusions are more robust.
 
 # References
 
