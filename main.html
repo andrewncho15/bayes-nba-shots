@@ -150,7 +150,7 @@ window.Quarto = {
   <li><a href="#prior-sensitivity-analysis" id="toc-prior-sensitivity-analysis" class="nav-link" data-scroll-target="#prior-sensitivity-analysis">Prior sensitivity analysis</a></li>
   <li><a href="#frequentist-methods-comparison" id="toc-frequentist-methods-comparison" class="nav-link" data-scroll-target="#frequentist-methods-comparison">Frequentist methods comparison</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
 </div>
@@ -13128,29 +13128,21 @@ scor_mrgn_z  0.014</code></pre>
 </div>
 </div>
 </div>
-<p>The frequentist logistic model estiamtes similar coeffiients, but our Bayesian model provides complete posterior distributions that allow for more interpretable probability statements. Also, the Bayesian method creates more natural workflows to perform prior predictive checks and prior sensitivity analysis.</p>
+<p>The frequentist logistic model estimates similar coefficients, but our Bayesian model provides complete posterior distributions that allow for more interpretable probability statements. Also, the Bayesian method creates more natural workflows to perform prior predictive checks and prior sensitivity analysis.</p>
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<p>The final results should be filled in after running the code. The main findings should discuss the following:</p>
-<ol type="1">
-<li><strong>Shot distance:</strong> Longer shots should generally have a lower posterior probability of being made.</li>
-<li><strong>Shot type:</strong> Three-point attempts should generally be harder than two-point attempts after controlling for player differences.</li>
-<li><strong>Game context:</strong> Home/away effects, score margin, and time remaining in the period may be smaller after adjusting for shot difficulty and player ability.</li>
-<li><strong>Player effects:</strong> Some players have positive adjusted shooting effects, meaning they make shots at a higher rate than expected given shot context.</li>
-<li><strong>Partial pooling:</strong> Low-attempt players are pulled closer to the league average than high-attempt players.</li>
-<li><strong>Model fit:</strong> Posterior predictive checks should show whether the model captures overall and zone-level shot-making rates.</li>
-<li><strong>Prior sensitivity:</strong> If results are similar under tighter and wider priors, conclusions are more robust.</li>
-</ol>
+<p>Initially, our data exploration yielded the findings that shot distance is strongly correlated with shooting success. Restricted area shots had estimated field goal percentage of 66% compared to 49% for threes. Similarly, two pointers had a field goal percentage of 50% while threes had a field goal percentage of 42% indicating that closer shots are much more likely to be made than long-range shots. To investigate this relationship further, we fir a hierarchical Bayesian logistic regression model that concluded that the most important predictors of shot success are shot distance and score margin.</p>
+<p>Shot distance was the strongest negative predictor with odds ratio 0.752 (95% credible interval: 0.698, 0.811) meaning that a one standard deviation increase in distance reduced the odds of making a shot by ~25%.</p>
+<p>Score margin was the strongest positive predictor. The odds ratio was 1.325 (95% credible interval: 1.239, 1.419) indicating that larger scoring margins increased the odds of making a shot by ~33%.</p>
+<p>Other variables like shot type, home/away, clock time, and game periods did not end up showing strong evidence of meaningful effects after accounting for distance and scoring margin.</p>
+<p>We also used our model to estimate player-specific effects and did so by taking players like Shai Gilgeous-Alexander, Pascal Siakam, Mikal Bridges Donovan Mitchell, among others with positive estimated shooting effects and calculating credible intervals for their make percentage. However, all of the players’ credible intervals contained 0 which suggests that we have low certainty that, based on model results, we can distinguish these players from league-average shooters.</p>
+<p>Posterior prediction tables showed that players were expected to make substantially more close-range two-point shots than long-range three-point shots. For example, predicted makes out of 100 attempts consistently decreased as shot distance increased. Predictions for individual shots remained highly uncertain because each shot can only result in a make or miss.</p>
+<p>Then, we conducted a model comparison that found that our hierarchical model was more effective than a non-hierarchical alternative which suggests that player-specific effects are at least moderately helpful in improving model predictive performance.</p>
 </section>
-<section id="references" class="level1">
-<h1>References</h1>
-<ul>
-<li>Bürkner, P.-C. (2017). <code>brms</code>: An R package for Bayesian multilevel models using Stan. <em>Journal of Statistical Software</em>.</li>
-<li>Stan Development Team. <em>Stan Modeling Language Users Guide and Reference Manual</em>.</li>
-<li>SportsDataverse. <code>hoopR</code>: Data and tools for basketball.</li>
-<li>ESPN NBA play-by-play data accessed through <code>hoopR</code>.</li>
-</ul>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>The hierarchical Bayesian logistic regression model that we fit is effective at explaining NBA shot-making while accoiunting for variables like player differences and shot context. We found through this investigation that greater shot distance substantially lowers shot-making probabilities while higher score margins increase it. We also found that there are player-to-player variations, however, our model could not confidently identify them, but overall our model provides a strong representation of some of the major factors that influence NBA shot success.</p>
 </section>
 
 </main>
