@@ -989,7 +989,7 @@ comparison |>
   gt()
 ```
 
-The frequentist logistic model estiamtes similar coeffiients, but our Bayesian model provides complete posterior distributions that allow for more interpretable probability statements.  Also, the Bayesian method creates more natural workflows to perform prior predictive checks and prior sensitivity analysis.
+The frequentist logistic model estimates similar coefficients, but our Bayesian model provides complete posterior distributions that allow for more interpretable probability statements.  Also, the Bayesian method creates more natural workflows to perform prior predictive checks and prior sensitivity analysis.
 
 # Results
 
@@ -1002,10 +1002,3 @@ The final results should be filled in after running the code. The main findings 
 5.  **Partial pooling:** Low-attempt players are pulled closer to the league average than high-attempt players.
 6.  **Model fit:** Posterior predictive checks should show whether the model captures overall and zone-level shot-making rates.
 7.  **Prior sensitivity:** If results are similar under tighter and wider priors, conclusions are more robust.
-
-# References
-
-- Bürkner, P.-C. (2017). `brms`: An R package for Bayesian multilevel models using Stan. *Journal of Statistical Software*.
-- Stan Development Team. *Stan Modeling Language Users Guide and Reference Manual*.
-- SportsDataverse. `hoopR`: Data and tools for basketball.
-- ESPN NBA play-by-play data accessed through `hoopR`.
